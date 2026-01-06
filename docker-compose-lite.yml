@@ -1,0 +1,136 @@
+version: '3.9'
+
+services:
+
+  # ---------------------------------------
+  # MYSQL
+  # ---------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    mem_limit: 300m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # REDIS
+  # ---------------------------------------
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    mem_limit: 100m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # SERVICE REGISTRY (EUREKA)
+  # ---------------------------------------
+  service-registry:
+    build: ./service-registry
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      JAVA_OPTS: "-Xms64m -Xmx128m"
+    mem_limit: 200m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # API GATEWAY
+  # ---------------------------------------
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8086:8086"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      EUREKA_URL: http://service-registry:8761/eureka/
+      JAVA_OPTS: "-Xms64m -Xmx128m"
+    depends_on:
+      - redis
+      - service-registry
+    mem_limit: 200m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # AUTH SERVICE
+  # ---------------------------------------
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: auth_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      JAVA_OPTS: "-Xms64m -Xmx128m"
+    depends_on:
+      - mysql
+      - service-registry
+    mem_limit: 200m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # PRODUCT SERVICE
+  # ---------------------------------------
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: product_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      JAVA_OPTS: "-Xms64m -Xmx128m"
+    depends_on:
+      - mysql
+      - service-registry
+    mem_limit: 200m
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # CART SERVICE
+  # ---------------------------------------
+  cart-service:
+    build: ./cart-service
+    container_name: cart-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: cart_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      JAVA_OPTS: "-Xms64m -Xmx128m"
+    depends_on:
+      - mysql
+      - service-registry
+    mem_limit: 200m
+    networks:
+      - ecom-net
+
+volumes:
+  mysql_data:
+
+networks:
+  ecom-net:
+    driver: bridge

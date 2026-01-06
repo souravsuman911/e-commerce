@@ -1,0 +1,22 @@
+<settings>
+    <mirrors>
+        <mirror>
+            <id>aliyun</id>
+            <mirrorOf>*</mirrorOf>
+            <name>Aliyun Maven Mirror</name>
+            <url>https://maven.aliyun.com/repository/central</url>
+        </mirror>
+    </mirrors>
+    <profiles>
+        <profile>
+            <id>allow-insecure</id>
+            <properties>
+                <maven.wagon.http.ssl.insecure>true</maven.wagon.http.ssl.insecure>
+                <maven.wagon.http.ssl.allowall>true</maven.wagon.http.ssl.allowall>
+            </properties>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>allow-insecure</activeProfile>
+    </activeProfiles>
+</settings>

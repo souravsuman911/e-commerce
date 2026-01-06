@@ -1,0 +1,223 @@
+version: '3.9'
+
+services:
+  # ---------------------------------------
+  # MYSQL DATABASE
+  # ---------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # REDIS (Rate Limiter / Cache)
+  # ---------------------------------------
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # KAFKA + ZOOKEEPER
+  # ---------------------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - ecom-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    restart: always
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # EUREKA SERVER (Service Registry)
+  # ---------------------------------------
+  service-registry:
+    image: service-registry:latest
+    container_name: service-registry
+    build:
+      context: ./service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      EUREKA_HOST: service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # API GATEWAY
+  # ---------------------------------------
+  api-gateway:
+    image: api-gateway:latest
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8086:8086"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+    depends_on:
+      - redis
+      - service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # AUTH SERVICE
+  # ---------------------------------------
+  auth-service:
+    image: auth-service:latest
+    container_name: auth-service
+    build:
+      context: ./auth-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: auth_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+    depends_on:
+      - mysql
+      - service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # PRODUCT SERVICE
+  # ---------------------------------------
+  product-service:
+    image: product-service:latest
+    container_name: product-service
+    build:
+      context: ./product-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: product_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+    depends_on:
+      - mysql
+      - service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # CART SERVICE
+  # ---------------------------------------
+  cart-service:
+    image: cart-service:latest
+    container_name: cart-service
+    build:
+      context: ./cart-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: cart_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+    depends_on:
+      - mysql
+      - service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # ORDER SERVICE
+  # ---------------------------------------
+  order-service:
+    image: order-service:latest
+    container_name: order-service
+    build:
+      context: ./order-service
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: order_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+      KAFKA_HOST: kafka:9092
+    depends_on:
+      - mysql
+      - kafka
+      - service-registry
+    networks:
+      - ecom-net
+
+  # ---------------------------------------
+  # PAYMENT SERVICE
+  # ---------------------------------------
+  payment-service:
+    image: payment-service:latest
+    container_name: payment-service
+    build:
+      context: ./payment-service
+    ports:
+      - "8085:8085"
+    environment:
+      MYSQL_HOST: mysql
+      DB_NAME: payment_db
+      MYSQL_USER: ecom_user
+      MYSQL_PASSWORD: ecom_pass
+      EUREKA_URL: http://service-registry:8761/eureka/
+      EUREKA_HOST: service-registry
+      KAFKA_HOST: kafka:9092
+
+      # Stripe keys
+      add stripe keys here first
+    depends_on:
+      - mysql
+      - kafka
+      - service-registry
+    networks:
+      - ecom-net
+
+# ---------------------------------------
+# VOLUMES
+# ---------------------------------------
+volumes:
+  mysql_data:
+
+# ---------------------------------------
+# NETWORK
+# ---------------------------------------
+networks:
+  ecom-net:
+    driver: bridge

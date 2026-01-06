@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: dev
+data:
+  application.yml: |
+    server:
+      port: 8086
+
+    spring:
+      application:
+        name: api-gateway
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info
