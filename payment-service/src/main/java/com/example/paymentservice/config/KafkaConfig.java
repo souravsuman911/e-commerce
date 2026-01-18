@@ -1,6 +1,6 @@
 package com.example.paymentservice.config;
 
-import com.example.paymentservice.dto.PaymentEvent;
+import com.example.paymentservice.dto.PaymentEventDTO;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ProducerFactory<String, PaymentEvent> producerFactory() {
+    public ProducerFactory<String, PaymentEventDTO> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -26,7 +26,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PaymentEvent> kafkaTemplate() {
+    public KafkaTemplate<String, PaymentEventDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

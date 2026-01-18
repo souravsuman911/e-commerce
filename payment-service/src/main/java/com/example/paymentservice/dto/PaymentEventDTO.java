@@ -2,13 +2,11 @@ package com.example.paymentservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class PaymentEvent {
+public class PaymentEventDTO {
     private Long orderId;
-    private String status; // PAID, FAILED
+    private String status;
     private Double amount;
 }
