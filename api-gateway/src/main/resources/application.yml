@@ -16,9 +16,9 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
-#  docker:
-#    compose:
-#      enabled: false
+  docker:
+    compose:
+      enabled: false
 
 eureka:
   client:

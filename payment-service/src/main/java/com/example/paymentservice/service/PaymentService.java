@@ -1,4 +1,4 @@
-package com.example.paymentservice.application;
+package com.example.paymentservice.service;
 
 import com.example.paymentservice.domain.gateway.IPaymentGateway;
 import com.example.paymentservice.infrastructure.webhook.WebhookProcessor;

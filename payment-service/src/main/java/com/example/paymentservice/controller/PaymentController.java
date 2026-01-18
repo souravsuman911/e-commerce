@@ -1,6 +1,6 @@
 package com.example.paymentservice.controller;
 
-import com.example.paymentservice.application.PaymentService;
+import com.example.paymentservice.service.PaymentService;
 import com.stripe.exception.StripeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

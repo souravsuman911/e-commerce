@@ -1,0 +1,53 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+          <option value="auth-service" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="org.springframework.security:spring-security-core:6.5.2" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.43" />
+          <option value="org.springframework:spring-webmvc:6.2.9" />
+          <option value="ch.qos.logback:logback-core:1.5.18" />
+          <option value="org.springframework:spring-beans:6.2.9" />
+          <option value="com.thoughtworks.xstream:xstream:1.4.20" />
+          <option value="org.springframework:spring-core:6.2.9" />
+          <option value="org.apache.httpcomponents:httpclient:4.5.3" />
+          <option value="commons-configuration:commons-configuration:1.10" />
+          <option value="commons-lang:commons-lang:2.6" />
+          <option value="com.google.guava:guava:14.0.1" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="In progress" />
+          <option value="Not exploitable" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
